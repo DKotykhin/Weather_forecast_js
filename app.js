@@ -1,5 +1,3 @@
-//let selectURL;
-
 const CurrentWeather = (selectURL) => {
     document.querySelectorAll('.row2>div').forEach(item => item.remove())
     fetch(selectURL).then(response => response.json()).then(data => {
@@ -136,14 +134,13 @@ setInterval(
 const btn = document.querySelector('#btn');
 btn.onclick = async(event) => {
     event.preventDefault();
-    if (document.getElementById('city').selectedIndex) {
+    if (document.querySelector('#city').selectedIndex) {
 
         console.log('Город: ' + city.value);
         console.log('------------------------------------');
 
         citysel.innerHTML = city.value;
         let coords = await GetCoordinates(city.value);
-        const selectURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`
-        CurrentWeather(selectURL);
+        CurrentWeather(`https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`);
     }
 };
