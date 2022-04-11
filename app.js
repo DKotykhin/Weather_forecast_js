@@ -1,6 +1,6 @@
-let selectURL;
+//let selectURL;
 
-const CurrentWeather = () => {
+const CurrentWeather = (selectURL) => {
     document.querySelectorAll('.row2>div').forEach(item => item.remove())
     fetch(selectURL).then(response => response.json()).then(data => {
 
@@ -23,7 +23,7 @@ const CurrentWeather = () => {
             clou.innerHTML = data.current.clouds;
             wind.innerHTML = Math.round(data.current.wind_speed);
             dir.innerHTML = WindDirect(data.current.wind_deg);
-            if (data.current.wind_gust !== undefined) gust.innerHTML = Math.round(data.current.wind_gust);
+            if (data.current.wind_gust) gust.innerHTML = Math.round(data.current.wind_gust);
 
             const nextDayForecast = (day) => {
                 const NextDay2 = new Date(data.daily[day].dt * 1000),
@@ -41,7 +41,7 @@ const CurrentWeather = () => {
                     windSpeed = Math.round(data.daily[day].wind_speed),
                     clouds = data.daily[day].clouds,
                     windGust = Math.round(data.daily[day].wind_gust);
-                if (windGust == undefined) windGust = '';
+                if (!windGust) windGust = '';
 
                 nextDayForm.innerHTML = `               
                 <div class="col_center">
@@ -136,14 +136,14 @@ setInterval(
 const btn = document.querySelector('#btn');
 btn.onclick = async(event) => {
     event.preventDefault();
-    if (document.getElementById('city').selectedIndex !== 0) {
+    if (document.getElementById('city').selectedIndex) {
 
         console.log('Город: ' + city.value);
         console.log('------------------------------------');
 
         citysel.innerHTML = city.value;
         let coords = await GetCoordinates(city.value);
-        selectURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`
-        CurrentWeather();
+        const selectURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`
+        CurrentWeather(selectURL);
     }
 };
