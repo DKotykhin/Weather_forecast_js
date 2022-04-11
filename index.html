@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Station</title>
+    <link rel="shortcut icon" href="weather.ico">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div class="header">
+        <p><img src="weather.png" alt="Logo"></p>
+        <h1>Weather Station</h1>
+    </div>
+    <div class="line"></div>
+
+    <div class="row1">
+        <div class="block1">
+            <!--<p><label for="city">Выберите город </label></p>-->
+            <select id="city">
+                <option disabled selected="selected">Выберите город</option>
+                <option value="Харьков">Харьков</option>
+                <option value="Лондон">Лондон</option>
+                <option value="Нью-Йорк">Нью-Йорк</option>
+                <option value="Мадрид">Мадрид</option>
+                <option value="Львов">Львов</option>
+                <option value="Сидней, AU">Сидней, AU</option>
+                <option value="Дубай">Дубай</option>
+                <option value="Сингапур">Сингапур</option>
+                <option value="Анталия">Анталия</option>
+                <option value="Flensburg, DE">Фленсбург</option>
+            </select>
+            <p><button id="btn">Выбрать</button></p>
+            <br />
+            <p>Последнее обновление: &nbsp&nbsp<span id="lastupd"></span></p>
+        </div>
+        <div>
+            <table class="table">
+                <tr>
+                    <td>Город: </td>
+                    <td><span id="citysel"></span></td>
+                </tr>
+                <tr>
+                    <td>Сегодня: </td>
+                    <td><span id="dat"></span></td>
+                </tr>
+                <tr>
+                    <td>Время: </td>
+                    <td><span id="tim"></span></td>
+                </tr>
+                <tr>
+                    <td>Рассвет: </td>
+                    <td><span id="sunr"></span></td>
+                </tr>
+                <tr>
+                    <td>Закат: </td>
+                    <td><span id="suns"></span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col_center">
+            <p>Погода сегодня</p>
+            <p id="icon"></p>
+            <p id="desc"></p>
+        </div>
+        <div>
+            <table class="table">
+                <tr>
+                    <td>Температура:</td>
+                    <td><span id="temp"></span> °С</td>
+                </tr>
+                <tr>
+                    <td>Чувствуется как:</td>
+                    <td><span id="feel"></span> °С</td>
+                </tr>
+                <tr>
+                    <td>Давление:</td>
+                    <td><span id="pres"></span> мм</td>
+                </tr>
+                <tr>
+                    <td>Влажность:</td>
+                    <td><span id="hum"></span> %</td>
+                </tr>
+                <tr>
+                    <td>Облачность:</td>
+                    <td><span id="clou"></span> %</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table class="table">
+                <tr>
+                    <td>Ветер:</td>
+                    <td><span id="dir"></span></td>
+                </tr>
+                <tr>
+                    <td>Скорость:</td>
+                    <td><span id="wind"></span> м/с</td>
+                </tr>
+                <tr>
+                    <td>Порывы до:</td>
+                    <td><span id="gust"></span> м/с</td>
+                </tr>
+                <tr>
+                    <td>Видимость:</td>
+                    <td><span id="vis"></span> км</td>
+                </tr>
+                <tr>
+                    <td>UV индекс:</td>
+                    <td><span id="uvi"></span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="row2"></div>
+
+    <script src="app.js"></script>
+</body>
