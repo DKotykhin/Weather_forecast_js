@@ -12,6 +12,8 @@ const CurrentWeather = (url) => {
             timeZone = data.timezone_offset / 3600;
             getLocalDate();
 
+            console.log('Длительность дня: ' + new Date((data.current.sunset - data.current.sunrise) * 1000).toUTCString().slice(-12, -7))
+
             const UpdateTime = new Date(data.current.dt * 1000);
             lastupd.innerHTML = UpdateTime.toLocaleTimeString().slice(0, -3)
 
