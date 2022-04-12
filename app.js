@@ -1,13 +1,29 @@
-const CurrentWeather = (selectURL) => {
+const btn = document.querySelector('#btn'),
+    citySelector = document.querySelector('#city');
+
+let timeZone; // = -new Date().getTimezoneOffset() / 60;
+
+
+const CurrentWeather = (url) => {
     document.querySelectorAll('.row2>div').forEach(item => item.remove())
-    fetch(selectURL).then(response => response.json()).then(data => {
+    fetch(url).then(response => response.json()).then(data => {
+
+            citysel.innerHTML = citySelector.value;
+            timeZone = data.timezone_offset / 3600;
+            getLocalDate();
 
             const UpdateTime = new Date(data.current.dt * 1000);
             lastupd.innerHTML = UpdateTime.toLocaleTimeString().slice(0, -3)
-            const SunriseTime = new Date(data.current.sunrise * 1000);
-            sunr.innerHTML = SunriseTime.toLocaleTimeString().slice(0, -3);
-            const SunsetTime = new Date(data.current.sunset * 1000);
-            suns.innerHTML = SunsetTime.toLocaleTimeString().slice(0, -3)
+
+            const sunriseHour = new Date(data.current.sunrise * 1000).getUTCHours() + timeZone;
+            const sunriseMinutes = new Date(data.current.sunrise * 1000).getUTCMinutes();
+            if (sunriseHour >= 24) sunr.innerHTML = `${sunriseHour-24}:${getZero(sunriseMinutes)}`;
+            else sunr.innerHTML = `${sunriseHour}:${getZero(sunriseMinutes)}`;
+
+            const sunsetHour = new Date(data.current.sunset * 1000).getUTCHours() + timeZone;
+            const sunsetMinutes = new Date(data.current.sunset * 1000).getUTCMinutes();
+            if (sunsetHour < 0) suns.innerHTML = `${sunsetHour+24}:${getZero(sunsetMinutes)}`;
+            else suns.innerHTML = `${sunsetHour}:${getZero(sunsetMinutes)}`;
 
             icon.innerHTML = `<img src="https://openweathermap.org/img/wn/${data.current.weather[0]['icon']}@2x.png">`
             desc.innerHTML = data.current.weather[0]['description'];
@@ -84,8 +100,12 @@ const CurrentWeather = (selectURL) => {
             `;
                 document.querySelector('.row2').append(nextDayForm);
             }
-            const forecastArray = [1, 2, 3, 4, 5];
-            forecastArray.forEach(item => nextDayForecast(item));
+
+            const forecastDays = 5;
+            for (let i = 0; i < forecastDays; i++) {
+                nextDayForecast(i + 1);
+            }
+
         })
         .catch(error => console.log('ошибка: ' + error));
 }
@@ -112,35 +132,47 @@ const WindDirect = (degree) => {
     else return 'северный'
 }
 
-const getCurrentTimeString = () => {
-    return new Date().toLocaleTimeString();
+const getZero = (num) => {
+    if (num >= 0 && num < 10) return `0${num}`;
+    else return num;
 }
-const getCurrentDateString = () => {
-    return new Date().toLocaleDateString();
-}
-console.log('Дата: ' + getCurrentDateString());
-console.log('Время: ' + getCurrentTimeString());
 
-setInterval(
-    () => tim.innerHTML = getCurrentTimeString(),
-    dat.innerHTML = getCurrentDateString(),
-    1000
-);
+const getLocalDate = () => {
+    const localHours = new Date().getUTCHours() + timeZone,
+        localMinutes = new Date().getUTCMinutes(),
+        localSeconds = new Date().getUTCSeconds();
+    const localDate = new Date().getDate(),
+        localMonth = new Date().getMonth(),
+        localYear = new Date().getFullYear();
+    if (timeZone) {
+        if (localHours >= 24) {
+            tim.innerHTML = `${localHours-24}:${getZero(localMinutes)}:${getZero(localSeconds)}`
+            dat.innerHTML = `${getZero(localDate + 1)}.${getZero(localMonth + 1)}.${localYear}`;
+        } else if (localHours < 0) {
+            tim.innerHTML = `${localHours+24}:${getZero(localMinutes)}:${getZero(localSeconds)}`
+            dat.innerHTML = `${getZero(localDate - 1)}.${getZero(localMonth + 1)}.${localYear}`;
+        } else {
+            tim.innerHTML = `${localHours}:${getZero(localMinutes)}:${getZero(localSeconds)}`
+            dat.innerHTML = `${getZero(localDate)}.${getZero(localMonth + 1)}.${localYear}`;
+        }
+    }
+}
+
+setInterval(() => getLocalDate(), 1000);
+
 // setInterval(
 //     () => CurrentWeather(),
 //     60000
 // );
 
-const btn = document.querySelector('#btn');
 btn.onclick = async(event) => {
     event.preventDefault();
-    if (document.querySelector('#city').selectedIndex) {
+    if (citySelector.selectedIndex) {
 
-        console.log('Город: ' + city.value);
+        console.log('Город: ' + citySelector.value);
         console.log('------------------------------------');
 
-        citysel.innerHTML = city.value;
-        let coords = await GetCoordinates(city.value);
+        let coords = await GetCoordinates(citySelector.value);
         CurrentWeather(`https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`);
     }
 };
