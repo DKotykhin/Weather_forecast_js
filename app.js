@@ -2,6 +2,7 @@ const btn = document.querySelector('#btn'),
     citySelector = document.querySelector('#city');
 
 let timeZone; // = -new Date().getTimezoneOffset() / 60;
+let UpdateTime;
 
 
 const CurrentWeather = (url) => {
@@ -10,22 +11,13 @@ const CurrentWeather = (url) => {
 
             citysel.innerHTML = citySelector.value;
             timeZone = data.timezone_offset / 3600;
+            UpdateTime = new Date(data.current.dt * 1000);
             getLocalDate();
 
             console.log('Длительность дня: ' + new Date((data.current.sunset - data.current.sunrise) * 1000).toUTCString().slice(-12, -7))
 
-            const UpdateTime = new Date(data.current.dt * 1000);
-            lastupd.innerHTML = UpdateTime.toLocaleTimeString().slice(0, -3)
-
-            const sunriseHour = new Date(data.current.sunrise * 1000).getUTCHours() + timeZone;
-            const sunriseMinutes = new Date(data.current.sunrise * 1000).getUTCMinutes();
-            if (sunriseHour >= 24) sunr.innerHTML = `${sunriseHour-24}:${getZero(sunriseMinutes)}`;
-            else sunr.innerHTML = `${sunriseHour}:${getZero(sunriseMinutes)}`;
-
-            const sunsetHour = new Date(data.current.sunset * 1000).getUTCHours() + timeZone;
-            const sunsetMinutes = new Date(data.current.sunset * 1000).getUTCMinutes();
-            if (sunsetHour < 0) suns.innerHTML = `${sunsetHour+24}:${getZero(sunsetMinutes)}`;
-            else suns.innerHTML = `${sunsetHour}:${getZero(sunsetMinutes)}`;
+            sunr.innerHTML = moment(new Date(data.current.sunrise * 1000)).add(timeZone - 3, 'hours').format('LT');
+            suns.innerHTML = moment(new Date(data.current.sunset * 1000)).add(timeZone - 3, 'hours').format('LT');
 
             icon.innerHTML = `<img src="https://openweathermap.org/img/wn/${data.current.weather[0]['icon']}@2x.png">`
             desc.innerHTML = data.current.weather[0]['description'];
@@ -56,12 +48,13 @@ const CurrentWeather = (url) => {
                     windDirection = WindDirect(data.daily[day].wind_deg),
                     windSpeed = Math.round(data.daily[day].wind_speed),
                     clouds = data.daily[day].clouds,
-                    windGust = Math.round(data.daily[day].wind_gust);
+                    windGust = Math.round(data.daily[day].wind_gust),
+                    dayOfWeek = moment(NextDay2).format('dddd');
                 if (!windGust) windGust = '';
 
                 nextDayForm.innerHTML = `               
                 <div class="col_center">
-                    <p>Прогноз на: &nbsp<span>${dataDay}</span></p>
+                    <p>${dayOfWeek} &nbsp<span>${dataDay}</span></p>
                     <p>${icon}</p>
                     <p>${description}</p>
                 </div>
@@ -134,29 +127,11 @@ const WindDirect = (degree) => {
     else return 'северный'
 }
 
-const getZero = (num) => {
-    if (num >= 0 && num < 10) return `0${num}`;
-    else return num;
-}
-
 const getLocalDate = () => {
-    const localHours = new Date().getUTCHours() + timeZone,
-        localMinutes = new Date().getUTCMinutes(),
-        localSeconds = new Date().getUTCSeconds();
-    const localDate = new Date().getDate(),
-        localMonth = new Date().getMonth(),
-        localYear = new Date().getFullYear();
     if (timeZone) {
-        if (localHours >= 24) {
-            tim.innerHTML = `${localHours-24}:${getZero(localMinutes)}:${getZero(localSeconds)}`
-            dat.innerHTML = `${getZero(localDate + 1)}.${getZero(localMonth + 1)}.${localYear}`;
-        } else if (localHours < 0) {
-            tim.innerHTML = `${localHours+24}:${getZero(localMinutes)}:${getZero(localSeconds)}`
-            dat.innerHTML = `${getZero(localDate - 1)}.${getZero(localMonth + 1)}.${localYear}`;
-        } else {
-            tim.innerHTML = `${localHours}:${getZero(localMinutes)}:${getZero(localSeconds)}`
-            dat.innerHTML = `${getZero(localDate)}.${getZero(localMonth + 1)}.${localYear}`;
-        }
+        tim.innerHTML = moment().add(timeZone - 3, 'hours').format('LTS');
+        dat.innerHTML = moment().add(timeZone - 3, 'hours').format('DD MMMM YYYY');
+        lastupd.innerHTML = moment(UpdateTime).startOf().fromNow();
     }
 }
 

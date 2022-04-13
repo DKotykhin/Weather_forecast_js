@@ -33,8 +33,9 @@
                 <option value="Гонолулу">Гонолулу</option>
             </select>
             <p><button id="btn">Выбрать</button></p>
-            <br />
-            <p>Последнее обновление: &nbsp&nbsp<span id="lastupd"></span></p>
+
+            <p class="lastup">Последнее обновление: &nbsp&nbsp</p>
+            <span id="lastupd"></span>
         </div>
         <div>
             <table class="table">
@@ -117,5 +118,7 @@
 
     <div class="row2"></div>
 
+    <script src="/node_modules/moment/moment.js"></script>
+    <script src="/node_modules/moment/locale/ru.js"></script>
     <script src="app.js"></script>
 </body>
