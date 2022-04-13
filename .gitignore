@@ -9,10 +9,6 @@
 # production
 /build
 
-# misc
-.DS_Store
+# files
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-weather.png*
+weather.png
