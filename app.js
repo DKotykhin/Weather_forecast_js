@@ -1,55 +1,56 @@
 const btn = document.querySelector('#btn'),
-    citySelector = document.querySelector('#city');
+    citySelector = document.querySelector('#city'),
+    _appKey = '2e5e5a511f687e8d8ad9d60e5486dcc3',
+    forecastDays = 5;
 
-let timeZone; // = -new Date().getTimezoneOffset() / 60;
-let UpdateTime;
+let timeZone, UpdateTime;
 
 
 const CurrentWeather = (url) => {
     document.querySelectorAll('.row2>div').forEach(item => item.remove())
     fetch(url).then(response => response.json()).then(data => {
-
+            const dc = data.current;
             citysel.innerHTML = citySelector.value;
             timeZone = data.timezone_offset / 3600;
-            UpdateTime = new Date(data.current.dt * 1000);
+            UpdateTime = moment.unix(dc.dt);
             getLocalDate();
 
-            console.log('Длительность дня: ' + new Date((data.current.sunset - data.current.sunrise) * 1000).toUTCString().slice(-12, -7))
+            //console.log('Длительность дня: ' + new Date((dc.sunset - dc.sunrise) * 1000).toUTCString().slice(-12, -7));
+            console.log('Длительность дня: ' + moment.unix(dc.sunset - dc.sunrise).utc().format('LT'));
 
-            sunr.innerHTML = moment(new Date(data.current.sunrise * 1000)).add(timeZone - 3, 'hours').format('LT');
-            suns.innerHTML = moment(new Date(data.current.sunset * 1000)).add(timeZone - 3, 'hours').format('LT');
+            sunr.innerHTML = moment.unix(dc.sunrise).utc().add(timeZone, 'hours').format('LT');
+            suns.innerHTML = moment.unix(dc.sunset).utc().add(timeZone, 'hours').format('LT');
 
-            icon.innerHTML = `<img src="https://openweathermap.org/img/wn/${data.current.weather[0]['icon']}@2x.png">`
-            desc.innerHTML = data.current.weather[0]['description'];
+            icon.innerHTML = `<img src=https://openweathermap.org/img/wn/${dc.weather[0]['icon']}@2x.png>`
+            desc.innerHTML = dc.weather[0]['description'];
 
-            temp.innerHTML = Math.round(data.current.temp - 273);
-            feel.innerHTML = Math.round(data.current.feels_like - 273);
-            pres.innerHTML = Math.round(data.current.pressure / 1.3332);
-            hum.innerHTML = data.current.humidity;
-            vis.innerHTML = data.current.visibility / 1000;
-            uvi.innerHTML = data.current.uvi;
-            clou.innerHTML = data.current.clouds;
-            wind.innerHTML = Math.round(data.current.wind_speed);
-            dir.innerHTML = WindDirect(data.current.wind_deg);
-            if (data.current.wind_gust) gust.innerHTML = Math.round(data.current.wind_gust);
+            temp.innerHTML = Math.round(dc.temp - 273);
+            feel.innerHTML = Math.round(dc.feels_like - 273);
+            pres.innerHTML = Math.round(dc.pressure / 1.3332);
+            hum.innerHTML = dc.humidity;
+            vis.innerHTML = dc.visibility / 1000;
+            uvi.innerHTML = dc.uvi;
+            clou.innerHTML = dc.clouds;
+            wind.innerHTML = Math.round(dc.wind_speed);
+            dir.innerHTML = WindDirect(dc.wind_deg);
+            if (dc.wind_gust) gust.innerHTML = Math.round(dc.wind_gust);
 
             const nextDayForecast = (day) => {
-                const NextDay2 = new Date(data.daily[day].dt * 1000),
-                    nextDayForm = document.createElement('div'),
+                const nextDayForm = document.createElement('div'),
 
-                    icon = `<img src="https://openweathermap.org/img/wn/${data.daily[day].weather[0]['icon']}@2x.png">`,
-                    description = data.daily[day].weather[0]['description'],
+                    icon = `<img src="https://openweathermap.org/img/wn/${day.weather[0]['icon']}@2x.png">`,
+                    description = day.weather[0]['description'],
 
-                    dataDay = NextDay2.toLocaleDateString(),
-                    tempDay = Math.round(data.daily[day].temp.day - 273),
-                    tempNight = Math.round(data.daily[day].temp.night - 273),
-                    presure = Math.round(data.daily[day].pressure / 1.3332),
-                    humidity = data.daily[day].humidity,
-                    windDirection = WindDirect(data.daily[day].wind_deg),
-                    windSpeed = Math.round(data.daily[day].wind_speed),
-                    clouds = data.daily[day].clouds,
-                    windGust = Math.round(data.daily[day].wind_gust),
-                    dayOfWeek = moment(NextDay2).format('dddd');
+                    dataDay = moment.unix(day.dt).format('DD MMMM'),
+                    dayOfWeek = moment.unix(day.dt).format('dddd'),
+                    tempDay = Math.round(day.temp.day - 273),
+                    tempNight = Math.round(day.temp.night - 273),
+                    presure = Math.round(day.pressure / 1.3332),
+                    humidity = day.humidity,
+                    windDirection = WindDirect(day.wind_deg),
+                    windSpeed = Math.round(day.wind_speed),
+                    clouds = day.clouds,
+                    windGust = Math.round(day.wind_gust);
                 if (!windGust) windGust = '';
 
                 nextDayForm.innerHTML = `               
@@ -96,9 +97,8 @@ const CurrentWeather = (url) => {
                 document.querySelector('.row2').append(nextDayForm);
             }
 
-            const forecastDays = 5;
-            for (let i = 0; i < forecastDays; i++) {
-                nextDayForecast(i + 1);
+            for (let i = 1; i <= forecastDays; i++) {
+                nextDayForecast(data.daily[i]);
             }
 
         })
@@ -106,7 +106,7 @@ const CurrentWeather = (url) => {
 }
 
 const GetCoordinates = async(name) => {
-    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${name}&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${name}&appid=${_appKey}`
     let response = await fetch(url);
     let data = await response.json();
     let coords = {
@@ -129,8 +129,8 @@ const WindDirect = (degree) => {
 
 const getLocalDate = () => {
     if (timeZone) {
-        tim.innerHTML = moment().add(timeZone - 3, 'hours').format('LTS');
-        dat.innerHTML = moment().add(timeZone - 3, 'hours').format('DD MMMM YYYY');
+        tim.innerHTML = moment.utc().add(timeZone, 'hours').format('LTS');
+        dat.innerHTML = moment.utc().add(timeZone, 'hours').format('dddd, DD MMMM');
         lastupd.innerHTML = moment(UpdateTime).startOf().fromNow();
     }
 }
@@ -150,6 +150,6 @@ btn.onclick = async(event) => {
         console.log('------------------------------------');
 
         let coords = await GetCoordinates(citySelector.value);
-        CurrentWeather(`https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=2e5e5a511f687e8d8ad9d60e5486dcc3`);
+        CurrentWeather(`https://api.openweathermap.org/data/2.5/onecall?lat=${coords.latitude}&lon=${coords.lontitude}&lang=ru&appid=${_appKey}`);
     }
 };
